@@ -10,6 +10,8 @@ class Atraccion extends Model
     //
     use HasFactory;
 
+    protected $table = 'atracciones';
+
     protected $fillable = [
         'nombre',
         'descripcion',
