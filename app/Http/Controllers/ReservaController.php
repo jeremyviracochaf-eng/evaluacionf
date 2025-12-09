@@ -8,9 +8,22 @@ use Illuminate\Http\Request;
 class ReservaController extends Controller
 {
     // Listar todas las reservas
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Reserva::with(['usuario','atraccion'])->get(), 200);
+        $user = $request->user();
+
+    if ($user->isAdmin()) {
+        // Admin ve todas las reservas con relaciones
+        $reservas = Reserva::with(['usuario','atraccion'])->get();
+    } else {
+        // Usuario normal solo ve sus reservas
+        $reservas = Reserva::with(['usuario','atraccion'])
+            ->where('user_id', $user->id)
+            ->get();
+    }
+
+    return response()->json($reservas, 200);
+
 
     }
 

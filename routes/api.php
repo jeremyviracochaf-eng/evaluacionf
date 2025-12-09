@@ -7,9 +7,7 @@ use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\AuthController;
 
 
-Route::apiResource('atracciones', AtraccionController::class);
-Route::apiResource('reservas', ReservaController::class);
-
+// --- Autenticación ---
 Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/login', [AuthController::class, 'login']);
 
@@ -17,14 +15,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
 
-    Route::apiResource('atracciones', AtraccionController::class);
+    // --- Reservas (solo autenticados) ---
     Route::apiResource('reservas', ReservaController::class);
+
+    // --- Atracciones (solo admin puede crear/editar/eliminar) ---
+    Route::middleware('is_admin')->group(function () {
+        Route::post('atracciones', [AtraccionController::class, 'store']);
+        Route::put('atracciones/{id}', [AtraccionController::class, 'update']);
+        Route::delete('atracciones/{id}', [AtraccionController::class, 'destroy']);
+    });
 });
 
+// --- Atracciones públicas (todos pueden ver) ---
+Route::get('atracciones', [AtraccionController::class, 'index']);
+Route::get('atracciones/{id}', [AtraccionController::class, 'show']);
 
-
-
-
+// --- Endpoint extra para probar usuario autenticado ---
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
