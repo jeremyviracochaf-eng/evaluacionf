@@ -27,16 +27,24 @@
 
 <script type="module">
   import { apiFetch } from './js/api.js';
-  import { getToken, logout, isAuthenticated } from './js/auth.js';
+  import { getUser, logout, isAuthenticated, isAdmin } from './js/auth.js';
 
   // Configurar interfaz según autenticación
+  const user = getUser();
+  
   if (isAuthenticated()) {
     document.getElementById('loginBtn').classList.add('hidden');
     document.getElementById('usuarioNombre').classList.remove('hidden');
-    document.getElementById('usuarioNombre').textContent = 'Hola, usuario';
+    if (user) {
+      document.getElementById('usuarioNombre').textContent = `Hola, ${user.name}`;
+    }
     document.getElementById('logoutBtn').classList.remove('hidden');
     document.getElementById('linkReservas').classList.remove('hidden');
-    document.getElementById('linkAdmin').classList.remove('hidden');
+    
+    // Mostrar panel admin solo si es admin
+    if (isAdmin()) {
+      document.getElementById('linkAdmin').classList.remove('hidden');
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', logout);
   }

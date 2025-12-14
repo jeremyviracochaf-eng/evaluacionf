@@ -1,5 +1,5 @@
 import { apiFetch } from './api.js';
-import { getToken, logout } from './auth.js';
+import { getToken, logout, getUser } from './auth.js';
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
@@ -21,8 +21,11 @@ async function cargarDetalle() {
 
     // Mostrar formulario si está autenticado
     if (getToken()) {
+      const user = getUser();
       document.getElementById('reservaContainer').classList.remove('hidden');
-      document.getElementById('usuarioNombre').textContent = 'Hola, usuario';
+      if (user) {
+        document.getElementById('usuarioNombre').textContent = `Hola, ${user.name}`;
+      }
       document.getElementById('logoutBtn').classList.remove('hidden');
     } else {
       document.getElementById('noAuthContainer').classList.remove('hidden');
@@ -68,7 +71,12 @@ document.getElementById('formReserva').addEventListener('submit', async (e) => {
       window.location.href = 'reservas.html';
     }, 2000);
   } catch (error) {
-    errorDiv.textContent = error.message || 'Error al crear reserva';
+    // Manejar error 409 de doble reserva
+    if (error.status === 409 || error.message?.includes('ya tiene una reserva')) {
+      errorDiv.textContent = 'Esta atracción ya tiene una reserva aceptada en esa fecha y hora. Por favor, elige otro horario.';
+    } else {
+      errorDiv.textContent = error.message || 'Error al crear reserva';
+    }
     errorDiv.classList.remove('hidden');
   }
 });

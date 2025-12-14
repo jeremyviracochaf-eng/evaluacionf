@@ -38,9 +38,15 @@ class AuthController extends Controller
 
         $user = User::where('email', $data['email'])->first();
 
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
+        if (! $user) {
             throw ValidationException::withMessages([
-                'email' => ['Credenciales inválidas.'],
+                'email' => ['Correo no registrado en nuestro sistema.'],
+            ]);
+        }
+
+        if (! Hash::check($data['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['Contraseña incorrecta.'],
             ]);
         }
 

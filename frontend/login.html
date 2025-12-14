@@ -5,68 +5,338 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Atracciones Turísticas</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-
-<header class="bg-blue-600 text-white p-4">
-  <h1 class="text-xl font-bold"><a href="index.html">Atracciones Turísticas</a></h1>
-</header>
-
-<main class="flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded shadow-lg max-w-md w-full">
-    <h2 class="text-2xl font-bold mb-6">Iniciar Sesión</h2>
-    
-    <form id="loginForm">
-      <div class="mb-4">
-        <label class="block text-gray-700 font-semibold mb-2">Email:</label>
-        <input type="email" name="email" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-gray-700 font-semibold mb-2">Contraseña:</label>
-        <input type="password" name="password" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
-      </div>
-
-      <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700">
-        Ingresar
-      </button>
-    </form>
-
-    <p class="mt-4 text-center text-gray-600">
-      ¿No tienes cuenta? <a href="register.html" class="text-blue-600 font-semibold">Regístrate aquí</a>
-    </p>
-
-    <div id="error" class="mt-4 p-3 bg-red-100 text-red-700 rounded hidden"></div>
-  </div>
-</main>
-
-<script type="module">
-  import { apiFetch } from './js/api.js';
-  import { saveToken } from './js/auth.js';
-
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const errorDiv = document.getElementById('error');
-    errorDiv.classList.add('hidden');
-
-    try {
-      const email = e.target.email.value;
-      const password = e.target.password.value;
-
-      const data = await apiFetch('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
-
-      saveToken(data.token);
-      window.location.href = 'index.html';
-    } catch (error) {
-      errorDiv.textContent = error.message || 'Error al iniciar sesión';
-      errorDiv.classList.remove('hidden');
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  });
-</script>
 
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Fondo de viaje animado */
+    .bg-travel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80') no-repeat center/cover;
+      opacity: 0.3;
+      z-index: 1;
+    }
+
+    .container-main {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Glassmorphism Card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      max-width: 450px;
+      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Header */
+    .header-login {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .header-login h1 {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .header-login p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Input Group */
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      color: #667eea;
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 45px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Botón con Gradiente */
+    .btn-gradient {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .btn-gradient:active {
+      transform: translateY(0);
+    }
+
+    /* Link */
+    .link-register {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    .link-register a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .link-register a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    /* Error Message */
+    #error {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      animation: slideIn 0.3s ease;
+    }
+
+    #error::before {
+      content: '⚠️';
+      font-size: 18px;
+    }
+
+    /* Animación */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header Bar */
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 20;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+    }
+
+    header a:hover {
+      opacity: 0.8;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .glass-card {
+        padding: 30px 20px;
+      }
+
+      .header-login h1 {
+        font-size: 26px;
+      }
+
+      .input-group input {
+        padding: 12px 40px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Fondo de viaje -->
+  <div class="bg-travel"></div>
+
+  <!-- Header -->
+  <header>
+    <h1><a href="index.html">🌎 Atracciones Turísticas</a></h1>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container-main">
+    <div class="glass-card">
+      <!-- Header del formulario -->
+      <div class="header-login">
+        <h1>Bienvenido</h1>
+        <p>Inicia sesión para explorar atracciones</p>
+      </div>
+
+      <!-- Formulario -->
+      <form id="loginForm">
+        <!-- Email Input -->
+        <div class="input-group">
+          <label>Email</label>
+          <div class="input-wrapper">
+            <i class="fas fa-envelope input-icon"></i>
+            <input type="email" name="email" placeholder="tu@email.com" required>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="input-group">
+          <label>Contraseña</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" name="password" placeholder="Mínimo 8 caracteres" required>
+          </div>
+        </div>
+
+        <!-- Botón Submit -->
+        <button type="submit" class="btn-gradient">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+      </form>
+
+      <!-- Link a Registro -->
+      <p class="link-register">
+        ¿No tienes cuenta? <a href="register.html">Regístrate aquí</a>
+      </p>
+
+      <!-- Error Message -->
+      <div id="error" class="hidden"></div>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script type="module">
+    import { apiFetch } from './js/api.js';
+    import { saveToken, saveUser } from './js/auth.js';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const errorDiv = document.getElementById('error');
+      errorDiv.classList.add('hidden');
+
+      try {
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+
+        const data = await apiFetch('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        saveToken(data.token);
+        saveUser(data.user);
+        
+        // Redireccionar según rol
+        if (data.user.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      } catch (error) {
+        errorDiv.textContent = error.message || 'Error al iniciar sesión';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+  </script>
 </body>
 </html>

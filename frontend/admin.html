@@ -9,44 +9,126 @@
 
 <!-- HEADER -->
 <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-  <h1 class="text-xl font-bold">Panel Admin</h1>
-  <button id="logoutBtn" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
-    Cerrar sesión
-  </button>
+  <div>
+    <h1 class="text-xl font-bold">Panel Admin</h1>
+    <p class="text-sm">Gestión de Atracciones</p>
+  </div>
+  <div class="flex gap-4 items-center">
+    <span id="usuarioNombre"></span>
+    <a href="reservas-admin.html" class="bg-purple-600 px-4 py-2 rounded hover:bg-purple-700">
+      Gestionar Reservas
+    </a>
+    <button id="logoutBtn" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
+      Cerrar sesión
+    </button>
+  </div>
 </header>
 
 <!-- CONTENIDO -->
 <main class="p-6 max-w-7xl mx-auto space-y-10">
 
-  <!-- IMPORTAR DESDE GOOGLE -->
+  <!-- CREAR NUEVA ATRACCIÓN -->
   <section class="bg-white p-6 rounded shadow">
-    <h2 class="text-lg font-semibold mb-4">Importar atracciones (Google Places)</h2>
+    <h2 class="text-2xl font-bold mb-4">Crear Nueva Atracción</h2>
 
-    <div class="grid md:grid-cols-3 gap-4">
-      <input id="lat" type="number" step="any" placeholder="Latitud"
-        class="border p-2 rounded">
-      <input id="lon" type="number" step="any" placeholder="Longitud"
-        class="border p-2 rounded">
-      <input id="radius" type="number" placeholder="Radio (m)"
-        class="border p-2 rounded">
-    </div>
+    <form id="formAtraccion" class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Nombre:</label>
+        <input type="text" name="nombre" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
 
-    <button id="importBtn"
-      class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-      Importar
-    </button>
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Categoría:</label>
+        <input type="text" name="categoria" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
 
-    <p id="importMsg" class="mt-3 text-sm"></p>
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Ubicación:</label>
+        <input type="text" name="ubicacion" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">Precio:</label>
+        <input type="number" name="precio" step="0.01" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 font-semibold mb-2">Descripción:</label>
+        <textarea name="descripcion" required rows="4" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 font-semibold mb-2">URL de Imagen (opcional):</label>
+        <input type="url" name="imagen_url" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+
+      <div class="md:col-span-2">
+        <button type="submit" class="w-full bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 font-semibold">
+          Crear Atracción
+        </button>
+      </div>
+    </form>
+
+    <div id="formMsg" class="mt-4 p-3 rounded hidden"></div>
   </section>
 
   <!-- LISTA DE ATRACCIONES -->
   <section>
-    <h2 class="text-xl font-bold mb-4">Atracciones</h2>
+    <h2 class="text-2xl font-bold mb-4">Gestionar Atracciones</h2>
 
-    <div id="atraccionesGrid"
-      class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div id="atraccionesGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
     </div>
   </section>
+
+  <!-- MODAL DE EDICIÓN -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded shadow-lg max-w-md w-full max-h-96 overflow-y-auto">
+      <h2 class="text-2xl font-bold mb-4">Editar Atracción</h2>
+
+      <form id="formEditar" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Nombre:</label>
+          <input type="text" name="nombre" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Categoría:</label>
+          <input type="text" name="categoria" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Ubicación:</label>
+          <input type="text" name="ubicacion" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Precio:</label>
+          <input type="number" name="precio" step="0.01" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Descripción:</label>
+          <textarea name="descripcion" rows="3" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">URL de Imagen:</label>
+          <input type="url" name="imagen_url" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div class="flex gap-2">
+          <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold">
+            Guardar
+          </button>
+          <button type="button" onclick="cerrarModal()" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 font-semibold">
+            Cancelar
+          </button>
+        </div>
+      </form>
+
+      <div id="editMsg" class="mt-4 p-3 rounded hidden"></div>
+    </div>
+  </div>
 
 </main>
 
