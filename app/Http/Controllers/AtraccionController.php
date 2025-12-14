@@ -8,18 +8,35 @@ use App\Services\FirebaseStorageService;
 
 class AtraccionController extends Controller
 {
-    // Listar todas las atracciones
-
-    public function index()
+    // Listar todas las atracciones con filtros y paginación
+    public function index(Request $request)
     {
+        $query = Atraccion::query();
+
+        // Filtro por provincia
+        if ($request->has('provincia') && $request->provincia !== '') {
+            $query->where('provincia', $request->provincia);
+        }
+
+        // Filtro por categoría
+        if ($request->has('categoria') && $request->categoria !== '') {
+            $query->where('categoria', $request->categoria);
+        }
+
+        // Búsqueda por nombre
+        if ($request->has('search') && $request->search !== '') {
+            $query->where('nombre', 'like', '%' . $request->search . '%');
+        }
+
+        // Paginación: 20 atracciones por página
+        $perPage = $request->get('per_page', 20);
+        $page = $request->get('page', 1);
+
         return response()->json(
-        Atraccion::orderBy('created_at', 'desc')->get(),
-        200
-    );
-
+            $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page),
+            200
+        );
     }
-
-    // Crear nueva atracción
 
     public function store(Request $request)
     {
@@ -28,6 +45,7 @@ class AtraccionController extends Controller
             'descripcion' => 'required|string',
             'categoria' => 'required|string|max:100',
             'ubicacion' => 'required|string|max:255',
+            'provincia' => 'required|string|max:100',
             'precio' => 'nullable|numeric',
             'imagen_url' => 'nullable|string',
         ]);
@@ -46,8 +64,6 @@ class AtraccionController extends Controller
         return response()->json($atraccion, 200);
     }
 
-    // Actualizar atracción
-
     public function update(Request $request, string $id)
     {
         $atraccion = Atraccion::findOrFail($id);
@@ -57,6 +73,7 @@ class AtraccionController extends Controller
             'descripcion' => 'sometimes|string',
             'categoria' => 'sometimes|string|max:100',
             'ubicacion' => 'sometimes|string|max:255',
+            'provincia' => 'sometimes|string|max:100',
             'precio' => 'nullable|numeric',
             'imagen_url' => 'nullable|string',
         ]);

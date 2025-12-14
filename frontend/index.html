@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atracciones Turísticas - Pichincha</title>
+  <title>Atracciones Turísticas - Ecuador</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    // Configurar API_BASE para usar en filters.js
+    const API_BASE = 'http://127.0.0.1:8000/api';
+  </script>
 </head>
 <body class="bg-gray-100">
 
 <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-  <h1 class="text-xl font-bold">Atracciones Turísticas</h1>
+  <h1 class="text-xl font-bold">🏖️ Atracciones Turísticas Ecuador</h1>
   <div class="flex gap-3 items-center">
     <span id="usuarioNombre" class="hidden"></span>
     <a href="reservas.html" id="linkReservas" class="bg-green-500 px-3 py-1 rounded hidden">Mis Reservas</a>
@@ -19,10 +24,18 @@
   </div>
 </header>
 
-<main class="p-6">
-  <h2 class="text-2xl font-bold mb-4">Catálogo de Atracciones</h2>
+<main class="p-6 max-w-7xl mx-auto">
+  <h2 class="text-3xl font-bold mb-4">📍 Catálogo de Atracciones</h2>
 
-  <div id="atracciones" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+  <!-- Contenedor de filtros -->
+  <div id="filter-container"></div>
+
+  <!-- Contenedor de atracciones -->
+  <div id="atracciones-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+  <!-- Contenedor de paginación -->
+  <div id="pagination-container"></div>
+  <div id="pagination-info"></div>
 </main>
 
 <script type="module">
@@ -49,34 +62,13 @@
     document.getElementById('logoutBtn').addEventListener('click', logout);
   }
 
-  const grid = document.getElementById('atracciones');
-
-  async function cargarAtracciones() {
-    try {
-      const atracciones = await apiFetch('/atracciones');
-
-      grid.innerHTML = atracciones.map(a => `
-        <div class="bg-white rounded shadow overflow-hidden hover:shadow-lg transition">
-          ${a.imagen_url ? `<img src="${a.imagen_url}" class="h-48 w-full object-cover">` : ''}
-          <div class="p-4">
-            <h2 class="font-bold text-lg">${a.nombre}</h2>
-            <p class="text-sm text-gray-600 mb-2">${a.ubicacion}</p>
-            <p class="text-sm text-gray-700 mb-3 line-clamp-2">${a.descripcion}</p>
-            <p class="text-blue-600 font-semibold mb-3">$${a.precio || 'Consultar'}</p>
-            <a href="detalle.html?id=${a.id}"
-               class="inline-block w-full text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-               Ver detalle
-            </a>
-          </div>
-        </div>
-      `).join('');
-
-    } catch (e) {
-      grid.innerHTML = '<p class="text-red-600 col-span-full text-center">Error cargando atracciones</p>';
-    }
-  }
-
-  cargarAtracciones();
+  // Función global para ver detalle
+  window.mostrarDetalle = function(id) {
+    window.location.href = `detalle.html?id=${id}`;
+  };
 </script>
+
+<!-- Script de filtros y paginación -->
+<script src="filters.js"></script>
 </body>
 </html>

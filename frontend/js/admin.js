@@ -20,19 +20,23 @@ let atraccionEnEdicion = null;
 // Cargar atracciones
 async function cargarAtracciones() {
   try {
-    const atracciones = await apiFetch('/atracciones');
+    const atracciones = await apiFetch('/atracciones?per_page=100');
     const grid = document.getElementById('atraccionesGrid');
 
-    grid.innerHTML = atracciones.map(a => `
+    // Manejar respuesta paginada
+    const items = atracciones.data ? atracciones.data : atracciones;
+
+    grid.innerHTML = items.map(a => `
       <div class="bg-white p-4 rounded shadow">
         ${a.imagen_url ? `<img src="${a.imagen_url}" class="w-full h-40 object-cover rounded mb-3">` : '<div class="w-full h-40 bg-gray-300 rounded mb-3 flex items-center justify-center text-gray-600">Sin imagen</div>'}
         <h3 class="font-bold text-lg mb-1">${a.nombre}</h3>
+        <p class="text-sm text-blue-600 mb-1">📌 ${a.provincia || 'N/A'}</p>
         <p class="text-sm text-gray-600 mb-1">📍 ${a.ubicacion}</p>
         <p class="text-sm text-gray-700 mb-2 line-clamp-2">${a.descripcion}</p>
         <p class="text-blue-600 font-semibold mb-3">$${a.precio || 'Consultar'}</p>
         <div class="flex gap-2">
           <button class="flex-1 bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700" 
-                  onclick="abrirEdicion(${a.id}, '${a.nombre}', '${a.categoria}', '${a.ubicacion}', ${a.precio || 'null'}, '${a.descripcion.replace(/'/g, "\\'")}', '${a.imagen_url || ''}')">
+                  onclick="abrirEdicion(${a.id}, '${a.nombre}', '${a.categoria}', '${a.provincia || ''}', '${a.ubicacion}', ${a.precio || 'null'}, '${a.descripcion.replace(/'/g, "\\'")}', '${a.imagen_url || ''}')">
             Editar
           </button>
           <button class="flex-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
@@ -58,6 +62,7 @@ document.getElementById('formAtraccion').addEventListener('submit', async (e) =>
     const data = {
       nombre: e.target.nombre.value,
       categoria: e.target.categoria.value,
+      provincia: e.target.provincia.value,
       ubicacion: e.target.ubicacion.value,
       precio: e.target.precio.value ? parseFloat(e.target.precio.value) : null,
       descripcion: e.target.descripcion.value,
@@ -86,10 +91,11 @@ document.getElementById('formAtraccion').addEventListener('submit', async (e) =>
 });
 
 // Abrir modal de edición
-window.abrirEdicion = (id, nombre, categoria, ubicacion, precio, descripcion, imagenUrl) => {
+window.abrirEdicion = (id, nombre, categoria, provincia, ubicacion, precio, descripcion, imagenUrl) => {
   atraccionEnEdicion = id;
   document.getElementById('formEditar').nombre.value = nombre;
   document.getElementById('formEditar').categoria.value = categoria;
+  document.getElementById('formEditar').provincia.value = provincia;
   document.getElementById('formEditar').ubicacion.value = ubicacion;
   document.getElementById('formEditar').precio.value = precio || '';
   document.getElementById('formEditar').descripcion.value = descripcion;
@@ -115,6 +121,7 @@ document.getElementById('formEditar').addEventListener('submit', async (e) => {
     const data = {
       nombre: e.target.nombre.value,
       categoria: e.target.categoria.value,
+      provincia: e.target.provincia.value,
       ubicacion: e.target.ubicacion.value,
       precio: e.target.precio.value ? parseFloat(e.target.precio.value) : null,
       descripcion: e.target.descripcion.value,
