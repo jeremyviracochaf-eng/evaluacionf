@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Reservas - Atracciones Turísticas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<header class="bg-blue-600 text-white p-4 flex justify-between">
+  <h1 class="text-xl font-bold"><a href="index.html">Atracciones Turísticas</a></h1>
+  <div>
+    <span id="usuarioNombre" class="mr-4"></span>
+    <button id="logoutBtn" class="bg-red-500 px-3 py-1 rounded">Cerrar sesión</button>
+  </div>
+</header>
+
+<main class="p-6">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">Mis Reservas</h2>
+
+    <div id="reservasContainer" class="space-y-4">
+      <!-- Las reservas se cargarán aquí -->
+    </div>
+
+    <div id="emptyState" class="bg-white p-6 rounded shadow text-center hidden">
+      <p class="text-gray-600 mb-4">No tienes reservas aún</p>
+      <a href="index.html" class="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        Ver Atracciones
+      </a>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { apiFetch } from './js/api.js';
+  import { getToken, logout, isAuthenticated } from './js/auth.js';
+
+  // Verificar autenticación
+  if (!isAuthenticated()) {
+    window.location.href = 'login.html';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // Cargar reservas
+  async function cargarReservas() {
+    try {
+      const reservas = await apiFetch('/reservas');
+      const container = document.getElementById('reservasContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      if (reservas.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      container.innerHTML = reservas.map(r => `
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="text-xl font-bold mb-2">${r.atraccion.nombre}</h3>
+          <p class="text-gray-600 mb-2">📍 ${r.atraccion.ubicacion}</p>
+          
+          <div class="grid md:grid-cols-3 gap-4 my-4">
+            <div>
+              <p class="text-gray-700 font-semibold">Fecha</p>
+              <p>${new Date(r.fecha).toLocaleDateString('es-ES')}</p>
+            </div>
+            <div>
+              <p class="text-gray-700 font-semibold">Hora</p>
+              <p>${r.hora}</p>
+            </div>
+            <div>
+              <p class="text-gray-700 font-semibold">Estado</p>
+              <p class="px-3 py-1 rounded inline-block ${
+                r.estado === 'aceptada' ? 'bg-green-100 text-green-700' :
+                r.estado === 'rechazada' ? 'bg-red-100 text-red-700' :
+                'bg-yellow-100 text-yellow-700'
+              }">
+                ${r.estado.charAt(0).toUpperCase() + r.estado.slice(1)}
+              </p>
+            </div>
+          </div>
+
+          ${r.comentarios ? `<p class="text-gray-700 italic">Comentario: ${r.comentarios}</p>` : ''}
+
+          <button onclick="cancelarReserva(${r.id})" 
+                  class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+            Cancelar Reserva
+          </button>
+        </div>
+      `).join('');
+
+    } catch (error) {
+      console.error('Error cargando reservas:', error);
+      document.getElementById('reservasContainer').innerHTML = 
+        '<p class="text-red-600">Error cargando reservas</p>';
+    }
+  }
+
+  window.cancelarReserva = async (id) => {
+    if (!confirm('¿Cancelar esta reserva?')) return;
+    
+    try {
+      await apiFetch(`/reservas/${id}`, {
+        method: 'DELETE'
+      });
+      alert('Reserva cancelada');
+      cargarReservas();
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  cargarReservas();
+</script>
+
+</body>
+</html>
+

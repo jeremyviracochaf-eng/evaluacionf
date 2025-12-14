@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin | Atracciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">Panel Admin</h1>
+  <button id="logoutBtn" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
+    Cerrar sesión
+  </button>
+</header>
+
+<!-- CONTENIDO -->
+<main class="p-6 max-w-7xl mx-auto space-y-10">
+
+  <!-- IMPORTAR DESDE GOOGLE -->
+  <section class="bg-white p-6 rounded shadow">
+    <h2 class="text-lg font-semibold mb-4">Importar atracciones (Google Places)</h2>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <input id="lat" type="number" step="any" placeholder="Latitud"
+        class="border p-2 rounded">
+      <input id="lon" type="number" step="any" placeholder="Longitud"
+        class="border p-2 rounded">
+      <input id="radius" type="number" placeholder="Radio (m)"
+        class="border p-2 rounded">
+    </div>
+
+    <button id="importBtn"
+      class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+      Importar
+    </button>
+
+    <p id="importMsg" class="mt-3 text-sm"></p>
+  </section>
+
+  <!-- LISTA DE ATRACCIONES -->
+  <section>
+    <h2 class="text-xl font-bold mb-4">Atracciones</h2>
+
+    <div id="atraccionesGrid"
+      class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    </div>
+  </section>
+
+</main>
+
+<script src="js/admin.js" type="module"></script>
+</body>
+</html>
