@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Atraccion;
 use Illuminate\Http\Request;
+use App\Services\FirebaseStorageService;
 
 class AtraccionController extends Controller
 {
@@ -11,7 +12,10 @@ class AtraccionController extends Controller
 
     public function index()
     {
-        return response()->json(Atraccion::all(), 200);
+        return response()->json(
+        Atraccion::orderBy('created_at', 'desc')->get(),
+        200
+    );
 
     }
 
@@ -38,9 +42,8 @@ class AtraccionController extends Controller
 
     public function show(string $id)
     {
-        $atraccion = Atraccion::findOrFail($id);
+        $atraccion = Atraccion::with('reservas')->findOrFail($id);
         return response()->json($atraccion, 200);
-
     }
 
     // Actualizar atracción
@@ -74,4 +77,33 @@ class AtraccionController extends Controller
         return response()->json(['message' => 'Atracción eliminada'], 200);
 
     }
+
+    // Subir imagen a Firebase Storage
+
+    public function uploadImage(Request $request, $id, FirebaseStorageService $storage)
+    {
+    if (! $request->user()->isAdmin()) {
+        return response()->json(['message' => 'No autorizado'], 403);
+    }
+
+    $request->validate([
+        'imagen' => 'required|image|max:2048',
+    ]);
+
+    $atraccion = Atraccion::findOrFail($id);
+
+    $path = "atracciones/{$atraccion->id}_" . time() . "." . $request->imagen->extension();
+
+    $url = $storage->upload($request->imagen, $path);
+
+    $atraccion->update([
+        'imagen_url' => $url,
+    ]);
+
+    return response()->json([
+        'message' => 'Imagen subida correctamente',
+        'imagen_url' => $url,
+    ]);
+    }
+
 }

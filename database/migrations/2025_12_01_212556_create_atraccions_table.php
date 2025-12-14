@@ -18,7 +18,7 @@ return new class extends Migration
         $table->string('categoria');           // Ej: naturaleza, cultura, aventura
         $table->string('ubicacion');           // Dirección o referencia
         $table->decimal('precio', 8, 2)->nullable(); // Precio opcional
-        $table->string('imagen_url')->nullable();    // URL de imagen (Firebase)
+        $table->text('imagen_url')->nullable();    // URL de imagen (Firebase)
         $table->timestamps();
     });
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('atraccions');
+        Schema::dropIfExists('atracciones');
     }
 };

@@ -8,9 +8,19 @@ use Illuminate\Http\Request;
 class ReservaController extends Controller
 {
     // Listar todas las reservas
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Reserva::with(['usuario','atraccion'])->get(), 200);
+        $user = $request->user();
+
+    if ($user->isAdmin()) {
+    $reservas = Reserva::with(['usuario','atraccion'])->get();
+    } else {
+    $reservas = Reserva::with(['atraccion'])
+        ->where('user_id', $user->id)
+        ->get();
+    }
+
+    return response()->json($reservas, 200);
 
     }
 
@@ -18,16 +28,35 @@ class ReservaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'atraccion_id' => 'required|exists:atracciones,id',
-            'fecha' => 'required|date',
-            'hora' => 'required',
-            'comentarios' => 'nullable|string',
-        ]);
+        'atraccion_id' => 'required|exists:atracciones,id',
+        'fecha' => 'required|date',
+        'hora' => 'required',
+        'comentarios' => 'nullable|string',
+    ]);
 
-        $reserva = Reserva::create($validated);
+    // 🔒 VALIDACIÓN DE DOBLE RESERVA
+    $existe = Reserva::where('atraccion_id', $validated['atraccion_id'])
+        ->where('fecha', $validated['fecha'])
+        ->where('hora', $validated['hora'])
+        ->where('estado', 'aceptada')
+        ->exists();
 
-        return response()->json($reserva, 201);
+    if ($existe) {
+        return response()->json([
+            'message' => 'La atracción ya tiene una reserva aceptada en esa fecha y hora'
+        ], 409); // Conflict
+    }
+
+    $reserva = Reserva::create([
+        'user_id' => $request->user()->id,
+        'atraccion_id' => $validated['atraccion_id'],
+        'fecha' => $validated['fecha'],
+        'hora' => $validated['hora'],
+        'estado' => 'pendiente',
+        'comentarios' => $validated['comentarios'] ?? null,
+    ]);
+
+    return response()->json($reserva, 201);
 
     }
 
@@ -56,6 +85,30 @@ class ReservaController extends Controller
 
         return response()->json($reserva, 200);
 
+    }
+
+    //Cambiar estado de reserva
+
+    public function cambiarEstado(Request $request, string $id)
+   {
+    // Seguridad extra
+    if (! $request->user()->isAdmin()) {
+        return response()->json(['message' => 'No autorizado'], 403);
+    }
+
+    $validated = $request->validate([
+        'estado' => 'required|in:pendiente,aceptada,rechazada',
+    ]);
+
+    $reserva = Reserva::findOrFail($id);
+    $reserva->update([
+        'estado' => $validated['estado'],
+    ]);
+
+    return response()->json([
+        'message' => 'Estado de la reserva actualizado',
+        'reserva' => $reserva,
+    ], 200);
     }
 
     // Eliminar reserva
