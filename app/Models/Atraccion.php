@@ -13,15 +13,14 @@ class Atraccion extends Model
     protected $table = 'atracciones';
 
     protected $fillable = [
-        
         'google_place_id',
         'nombre',
         'descripcion',
         'categoria',
         'ubicacion',
+        'provincia',
         'precio',
         'imagen_url',
-
     ];
 
     // Relación: una atracción tiene muchas reservas

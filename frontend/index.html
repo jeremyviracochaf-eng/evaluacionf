@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atracciones Turísticas - Ecuador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    // Configurar API_BASE para usar en filters.js
+    const API_BASE = 'http://127.0.0.1:8000/api';
+  </script>
+</head>
+<body class="bg-gray-100">
+
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">🏖️ Atracciones Turísticas Ecuador</h1>
+  <div class="flex gap-3 items-center">
+    <span id="usuarioNombre" class="hidden"></span>
+    <a href="reservas.html" id="linkReservas" class="bg-green-500 px-3 py-1 rounded hidden">Mis Reservas</a>
+    <a href="admin.html" id="linkAdmin" class="bg-purple-600 px-3 py-1 rounded hidden">Panel Admin</a>
+    <button id="logoutBtn" class="bg-red-500 px-3 py-1 rounded hidden">Cerrar sesión</button>
+    <a href="login.html" id="loginBtn" class="bg-white text-blue-600 px-3 py-1 rounded">Login</a>
+  </div>
+</header>
+
+<main class="p-6 max-w-7xl mx-auto">
+  <h2 class="text-3xl font-bold mb-4">📍 Catálogo de Atracciones</h2>
+
+  <!-- Contenedor de filtros -->
+  <div id="filter-container"></div>
+
+  <!-- Contenedor de atracciones -->
+  <div id="atracciones-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+  <!-- Contenedor de paginación -->
+  <div id="pagination-container"></div>
+  <div id="pagination-info"></div>
+</main>
+
+<script type="module">
+  import { apiFetch } from './js/api.js';
+  import { getUser, logout, isAuthenticated, isAdmin } from './js/auth.js';
+
+  // Configurar interfaz según autenticación
+  const user = getUser();
+  
+  if (isAuthenticated()) {
+    document.getElementById('loginBtn').classList.add('hidden');
+    document.getElementById('usuarioNombre').classList.remove('hidden');
+    if (user) {
+      document.getElementById('usuarioNombre').textContent = `Hola, ${user.name}`;
+    }
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    document.getElementById('linkReservas').classList.remove('hidden');
+    
+    // Mostrar panel admin solo si es admin
+    if (isAdmin()) {
+      document.getElementById('linkAdmin').classList.remove('hidden');
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+  }
+
+  // Función global para ver detalle
+  window.mostrarDetalle = function(id) {
+    window.location.href = `detalle.html?id=${id}`;
+  };
+</script>
+
+<!-- Script de filtros y paginación -->
+<script src="filters.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle - Atracciones Turísticas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<header class="bg-blue-600 text-white p-4 flex justify-between">
+  <h1 class="text-xl font-bold"><a href="index.html">Atracciones Turísticas</a></h1>
+  <div>
+    <span id="usuarioNombre" class="mr-4"></span>
+    <button id="logoutBtn" class="bg-red-500 px-3 py-1 rounded hidden">Cerrar sesión</button>
+  </div>
+</header>
+
+<main class="p-6">
+  <div class="max-w-4xl mx-auto">
+    <!-- DETALLE DE ATRACCIÓN -->
+    <div id="detalle" class="bg-white p-6 rounded shadow mb-6"></div>
+
+    <!-- FORMULARIO DE RESERVA -->
+    <div id="reservaContainer" class="bg-white p-6 rounded shadow hidden">
+      <h2 class="text-2xl font-bold mb-4">Hacer una Reserva</h2>
+      
+      <form id="formReserva" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Fecha de Visita:</label>
+          <input type="date" name="fecha" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Hora de Visita:</label>
+          <input type="time" name="hora" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Comentarios (Opcional):</label>
+          <textarea name="comentarios" rows="4" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700">
+          Reservar
+        </button>
+      </form>
+
+      <div id="reservaError" class="mt-4 p-3 bg-red-100 text-red-700 rounded hidden"></div>
+      <div id="reservaSuccess" class="mt-4 p-3 bg-green-100 text-green-700 rounded hidden"></div>
+    </div>
+
+    <!-- AVISO PARA NO AUTENTICADOS -->
+    <div id="noAuthContainer" class="bg-yellow-100 p-6 rounded shadow hidden">
+      <p class="text-yellow-800 mb-4">Debes iniciar sesión para hacer una reserva.</p>
+      <a href="login.html" class="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Iniciar Sesión</a>
+    </div>
+  </div>
+</main>
+
+<script type="module" src="js/detalle.js"></script>
+</body>
+</html>
