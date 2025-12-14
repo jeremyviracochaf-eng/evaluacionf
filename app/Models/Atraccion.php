@@ -10,14 +10,24 @@ class Atraccion extends Model
     //
     use HasFactory;
 
+    protected $table = 'atracciones';
+
     protected $fillable = [
+        
+        'google_place_id',
         'nombre',
         'descripcion',
         'categoria',
         'ubicacion',
         'precio',
         'imagen_url',
+
     ];
 
+    // Relación: una atracción tiene muchas reservas
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class);
+    }
 
 }
