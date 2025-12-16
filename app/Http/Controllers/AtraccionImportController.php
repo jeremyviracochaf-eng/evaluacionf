@@ -11,9 +11,12 @@ class AtraccionImportController extends Controller
 {
     public function importFromGoogle(Request $request, GooglePlacesService $places)
     {
+        // Validar parámetros de entrada
      $lat = $request->lat;
         $lon = $request->lon;
         $radius = $request->radius ?? 30000;
+
+        // Llamar a la API de Google Places para obtener atracciones turísticas cercanas
 
         $response = Http::get(
             'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
@@ -27,6 +30,8 @@ class AtraccionImportController extends Controller
 
         $data = $response->json();
 
+        // Verificar que la respuesta contiene resultados
+
         if (!isset($data['results'])) {
             return response()->json([
                 'message' => 'Respuesta inválida de Google',
@@ -34,11 +39,15 @@ class AtraccionImportController extends Controller
             ], 500);
         }
 
+        // Guardar las atracciones en la base de datos
+
         $saved = [];
 
         foreach ($data['results'] as $place) {
 
             $photoRef = $place['photos'][0]['photo_reference'] ?? null;
+
+            // Usar updateOrCreate para evitar duplicados por google_place_id
 
             $atraccion = Atraccion::updateOrCreate(
                 ['google_place_id' => $place['place_id']],
@@ -54,8 +63,12 @@ class AtraccionImportController extends Controller
                 ]
             );
 
+            // Agregar a la lista de guardadas
+
             $saved[] = $atraccion;
         }
+
+        // Devolver la respuesta
 
         return response()->json([
             'message' => 'Atracciones importadas desde Google Places',

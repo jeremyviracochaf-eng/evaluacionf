@@ -8,10 +8,14 @@ class GooglePlacesService
 {
     protected string $apiKey;
 
+    // Constructor to initialize the API key
+
     public function __construct()
     {
         $this->apiKey = config('services.google.places_key');
     }
+
+    // Método para buscar lugares cercanos
 
     public function nearbySearch(float $lat, float $lon, int $radius = 30000, int $limit = 20): array
     {
@@ -37,6 +41,8 @@ class GooglePlacesService
     );
     }
 
+    // Método para obtener detalles de un lugar por su place_id
+
     public function getDetails(string $placeId): array
     {
         $response = Http::get(
@@ -54,6 +60,8 @@ class GooglePlacesService
 
         return $response->json('result', []);
     }
+
+    // Método para construir la URL de una foto dado su photo_reference
 
     public function getPhotoUrl(?string $photoReference, int $maxWidth = 600): ?string
     {

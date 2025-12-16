@@ -19,17 +19,22 @@ class FirebaseStorageService
 
     public function upload($file, string $path): string
     {
-        $object = $this->bucket->upload(
-            fopen($file->getRealPath(), 'r'),
-            ['name' => $path]
-        );
+    
+    $uploadStream = $file->get(); 
+    
+    // Si usas el método get() de Laravel:
+    $object = $this->bucket->upload(
+        $uploadStream, 
+        [
+            'name' => $path,
+            'predefinedAcl' => 'publicRead', 
+        ]
+    );
 
-        $object->update(['acl' => []]); // público
-
-        return sprintf(
-            'https://storage.googleapis.com/%s/%s',
-            env('FIREBASE_STORAGE_BUCKET'),
-            $path
-        );
-    }
+    return sprintf(
+        'https://storage.googleapis.com/%s/%s',
+        env('FIREBASE_STORAGE_BUCKET'),
+        $path
+    );
+   }
 }

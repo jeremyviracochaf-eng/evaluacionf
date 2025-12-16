@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Http;
 
 class ImportAttractionsAllProvinces extends Command
 {
+
+    // The name and signature of the console command.
     protected $signature = 'import:all-provinces';
     protected $description = 'Importa atracciones de todas las provincias de Ecuador desde Google Places';
 
+
+    // Execute the console command.
     public function handle()
     {
         $provinces = [
